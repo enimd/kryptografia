@@ -1,0 +1,143 @@
+package krypto_lista1;
+
+import java.nio.charset.StandardCharsets;
+import javax.crypto.*;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
+import javax.xml.bind.DatatypeConverter;
+public class kryptoL1 {
+	public static String encryption(String text, String key,String iv)
+	{
+		byte[] data = null;
+		try {
+			Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+			SecretKeySpec k = new SecretKeySpec(DatatypeConverter.parseHexBinary(key),"AES");
+			IvParameterSpec ivector = new IvParameterSpec(DatatypeConverter.parseHexBinary(iv));
+			cipher.init(Cipher.ENCRYPT_MODE, k, ivector);
+			data = cipher.doFinal(text.getBytes(StandardCharsets.UTF_8));
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+		}
+		String base64String = DatatypeConverter.printBase64Binary(data);
+		
+		return base64String;
+
+	
+	}
+public static String decryption(String data, String key, String initVector) {
+		
+
+	String text="";
+
+		try {
+			Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+			IvParameterSpec iv = new IvParameterSpec(DatatypeConverter.parseHexBinary(initVector));
+			SecretKeySpec k = new SecretKeySpec(DatatypeConverter.parseHexBinary(key), "AES");
+			cipher.init(Cipher.DECRYPT_MODE, k, iv);
+			byte[] text1 = cipher.doFinal(DatatypeConverter.parseBase64Binary(data));
+			text = new String(text1, StandardCharsets.UTF_8);
+		} catch (BadPaddingException e2) {
+			text = "0";
+		}	catch (Exception e) {
+			text = "0";
+		}
+		return text;
+	}
+	public static void bruteforce(String data, String sufix, String initialvector,int j, int k){
+		char[] keyTab = {'0', '1', '2', '3', '4', '5', '6', '7', '8','9', 'a', 'b', 'c', 'd', 'e', 'f'};
+		String test = "";
+		String keytest = "";
+		String dectest = "";
+		int i = 0;
+		for(int i1 = j; i1 < k; i1++) {
+		i++;
+		System.out.println(i);
+			for(int i2 = 0; i2 < 16; i2++) {
+				for(int i3 = 0; i3 < 16; i3++) {
+					for(int i4 = 0; i4 < 16; i4++) {
+						for(int i5 = 0; i5 < 16; i5++) {
+							for(int i6 = 0; i6 < 16; i6++) {
+								for(int i7 = 0; i7 < 16; i7++) {
+									for(int i8 = 0; i8 < 16; i8++) {
+										for(int i9 = 15; i9 <16;i9++){
+											test =test + keyTab[i1];
+											test =test + keyTab[i2];
+											test =test + keyTab[i3];
+											test =test + keyTab[i4];
+											test =test + keyTab[i5];
+											test =test + keyTab[i6];
+											test =test + keyTab[i7];
+											test =test + keyTab[i8];
+											test =test + keyTab[i9];
+											keytest= test + sufix;
+											dectest = decryption(data, keytest, initialvector);
+											if (mycheck(dectest) == true) {
+												System.out.println("klucz: " + keytest);
+											};
+											test = "";
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		
+	}
+	
+	
+public static boolean mycheck(String datacheck) {
+
+char [] signTab = {' ', '"', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'a', 'ą', 'B', 'b', 'C', 'c','Ć','ć', 'D', 'd', 'E', 'e', 'Ę', 'ę', 'F', 'f', 'G', 'g', 'H', 'h', 'I', 'i', 'J', 'j', 'K', 'k', 'L', 'l', 'Ł', 'ł', 'M', 'm', 'N', 'n', 'Ń', 'ń', 'O', 'o', 'P', 'p', 'R', 'r', 'S', 's', 'Ś', 'ś', 'T', 't', 'U', 'u', 'Ó', 'ó', 'Q', 'q', 'V', 'v', 'W', 'w', 'X', 'x', 'Y', 'y', 'Z', 'z', 'Ż', 'ż','Ź', 'ź', '(', ')', ',', '.', '-', ':',  '~', ';', '?', '/', '%', '\'', '\0'};
+int dlTab= signTab.length;
+boolean checked = false;
+
+if(datacheck == "0"){
+	return false;
+}
+for(int i=0; i<15 && i<datacheck.length() && checked == false; i++) {
+	for(int j=0; j<dlTab; j++) {
+		if(signTab[j] == datacheck.charAt(i))
+			break;
+		else if(j == dlTab - 1)
+			checked = true;
+	}
+}
+if(checked == false ) {
+	System.out.println(datacheck);
+	return true;
+}
+
+return false;
+}
+
+
+	public static void main(String[] args)
+	{
+		int j= 8;
+		int k = 12;
+		String data;
+		data = encryption("Ala ma kota. Kot ma, ale... to jednak ona go posiada. Jednakże gdy przeczytamy to ponownie to...","59c67015d4a72c87b915ccf9912ee4782a7cb6b3353dafcd6b7d10de88db46a8","c0782fc4f3c78f2a66dc559bf970dadc");
+		String data_test = "SodtoQ2p86Il/wnZvQel2cyLObhzg0jsqh5GwIVO/GBPpNmPSsw8fyt0yLj45yKrxFYxJWMl+f5Kzvc+QyWvNfhcXLICKWtOfoq22v6cZlF2YWPjg9FZhGo04Wtk1u5vPjTdgCJ1lQlAaEkeYyaBKA==";
+		if (data != data_test)
+			 System.out.println("true");
+		//if(mycheck("Ala ma kota. Kot ma, ale... to jednak ona go posiada. Jednakże gdy przeczytamy to ponownie to...")==true)
+		//	System.out.println("powiodlo sie");;
+		System.out.println(data);
+		System.out.println(decryption(data_test,"59c67015d4a72c87b915ccf9912ee4782a7cb6b3353dafcd6b7d10de88db46a8","c0782fc4f3c78f2a66dc559bf970dadc"));
+		bruteforce("Me/uMmlj29i8tIRnOT0rAfdLxcYXUO4qSgjUxR+qpKJPj61GxvR9s78NH+0Qj9EOLXXsLN1vOGacALeB0evl2z9prDUbmGppmdwAmSPaQBo=","5936426c87c402e3551a0c5acb19512629ded51e7b293e8804c468b","96fdee22b71b0d7529013334c58268d3",j,k);
+	}
+}
+/*
+bruteforce("sihRlxJ0VbA6iCD00iRmMtPmEFqZjkF2pmj7iF2jaSgR7rueODR2SkdSB9vEkRq64K5NT5fE/EbCBVzZBUxaZvIMeSmM2EgwWgTbEu0/zwYqTDHk3jZPyhArJ1W/WVhDCYVwzMK2RhHcZLM9z+tOrbkGWjqsOM3rDShwsoLqCRJ9VY6zfLYspXzxCOYIQQa1xPzRet7m5AzHrAUmF5ziEg==","b8e5212dc03d2227963a3271b9ab4986060962050e449326562b0c47","62dc838caaf4637aac6a2516844f2c64",j,k);
+Czerczesow mial w pewnym momencie powiedziec jednemu z pilkarzy, ze fatalnie dzis wyglada ? relacjonuje zawodnik, ktory przygladal sie zajsciu. 
+klucz: 384144f4b8e5212dc03d2227963a3271b9ab4986060962050e449326562b0c47
+
+bruteforce("Me/uMmlj29i8tIRnOT0rAfdLxcYXUO4qSgjUxR+qpKJPj61GxvR9s78NH+0Qj9EOLXXsLN1vOGacALeB0evl2z9prDUbmGppmdwAmSPaQBo=","5936426c87c402e3551a0c5acb19512629ded51e7b293e8804c468b","96fdee22b71b0d7529013334c58268d3",j,k);
+Kontuzjowany zawodnik zostal wraz ze swoja noga odeslany do rezerw. 
+
+klucz: 8dc81203f5936426c87c402e3551a0c5acb19512629ded51e7b293e8804c468b
+
+*/
